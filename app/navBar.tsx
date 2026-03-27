@@ -13,14 +13,14 @@ const NavBar = () => {
       <Link
         href={"/"}
         prefetch={false}
-        className={`${currentPath === "/" ? "text-black" : "text-gray-500"} `}
+        className={`${currentPath === "/" ? "text-white" : "text-gray-500"} `}
       >
         Home
       </Link>
       <Link
-        href={"/form"}
+        href={"/newIssue"}
         prefetch={false}
-        className={`${currentPath === "/form" ? "text-black" : "text-gray-500"} `}
+        className={`${currentPath === "/newIssue" ? "text-white" : "text-gray-500"} `}
       >
         Issue
       </Link>

@@ -4,6 +4,7 @@ import { z } from "zod";
 import prisma from "@/app/client";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const createIssueSchema = z.object({
   title: z.string().max(20),
@@ -37,6 +38,37 @@ export async function POST(request: Request) {
         details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
+    );
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const takeParam = searchParams.get("take");
+
+    let take: number | undefined = undefined;
+
+    if (takeParam) {
+      const parsedTake = parseInt(takeParam);
+      if (!isNaN(parsedTake) && parsedTake > 0) {
+        take = parsedTake;
+      }
+    }
+
+    const issues = await prisma.issue.findMany({
+      orderBy: { createdAt: "desc" },
+      ...(take ? { take } : {}),
+    });
+
+    return NextResponse.json(issues, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: "Database error",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
     );
   }
 }
