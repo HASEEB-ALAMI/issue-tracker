@@ -10,6 +10,10 @@ export const metadata: Metadata = {
     template: "%s | Issue Tracker",
   },
   description: "Track and manage issues.",
+  icons: {
+    icon: [{ url: "/lion.png", type: "image/png" }],
+    apple: [{ url: "/lion.png", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({
