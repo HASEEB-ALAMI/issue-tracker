@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import prisma from "@/app/client";
+import { auth } from "@/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,9 +10,15 @@ export const dynamic = "force-dynamic";
 const createIssueSchema = z.object({
   title: z.string().max(20),
   description: z.string().min(10),
+  userId: z.coerce.number().int().positive().optional(),
 });
 
 export async function POST(request: Request) {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = createIssueSchema.safeParse(body);
 
@@ -27,6 +34,7 @@ export async function POST(request: Request) {
       data: {
         title: parsed.data.title,
         description: parsed.data.description,
+        ...(parsed.data.userId ? { userId: parsed.data.userId } : {}),
       },
     });
 
@@ -43,6 +51,11 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const takeParam = searchParams.get("take");

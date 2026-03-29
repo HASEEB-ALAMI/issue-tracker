@@ -1,74 +1,52 @@
-import { Table } from "@radix-ui/themes";
-import prisma from "@/app/client";
-import type { Status } from "../generated/prisma";
-import Link from "next/link";
-import IssueRow from "./issueRow";
+import type { Metadata } from "next";
+import { auth } from "@/auth";
+import UserIssuesChart from "./userIssuesChart";
+import { getIssuesByUserEmailChart } from "./lib/issueData";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export default async function Page() {
-  if (process.env.NODE_ENV === "development") {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-  }
+export const metadata: Metadata = {
+  title: "Dashboard",
+};
 
+export default async function Dashboard() {
+  const session = await auth();
 
-  let issues: Array<{ id: number; title: string; status: Status }> = [];
+  let chartData: Awaited<ReturnType<typeof getIssuesByUserEmailChart>> = [];
   let dbError: string | null = null;
 
   try {
-    issues = await prisma.issue.findMany({
-      select: { id: true, title: true, status: true },
-      orderBy: { createdAt: "desc" },
-      take: 50,
-    });
+    chartData = await getIssuesByUserEmailChart();
   } catch (err) {
     dbError = err instanceof Error ? err.message : "Unknown database error";
-    console.error("[issues] failed to load:", err);
+    console.error("[dashboard] failed to load chart data:", err);
   }
 
   return (
     <main className="p-6">
-      {dbError ? (
-        <p className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          Database connection failed. Check that your database is running and
-          that <code>DATABASE_URL</code> is correct. ({dbError})
-        </p>
-      ) : null}
-      {!dbError && issues.length === 0 ? (
-        <div className="mb-4 rounded border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-          No issues yet.{" "}
-          <Link href="/form" className="underline">
-            Create your first issue
-          </Link>
-          .
+      {session ? (
+        <div className="mb-6 rounded border border-slate-800 bg-slate-950 p-4 text-slate-100">
+          Welcome <span className="font-semibold">{session.user?.email}</span>
         </div>
-      ) : null}
-      <Table.Root variant="ghost">
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeaderCell>ID</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Title</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Status</Table.ColumnHeaderCell>
-          </Table.Row>
-        </Table.Header>
+      ) : (
+        <div className="mb-6 rounded border border-slate-800 bg-slate-950 p-4 text-slate-200">
+          Viewing as guest.{" "}
+          <a href="/login" className="underline">
+            Log in
+          </a>{" "}
+          to manage issues.
+        </div>
+      )}
 
-        <Table.Body>
-          {!dbError && issues.length === 0 ? (
-            <Table.Row>
-              <Table.Cell colSpan={3}>No issues found.</Table.Cell>
-            </Table.Row>
-          ) : null}
-          {issues.map((data) => (
-            <IssueRow
-              key={data.id}
-              id={data.id}
-              title={data.title}
-              status={data.status}
-            />
-          ))}
-        </Table.Body>
-      </Table.Root>
+      {dbError ? (
+        <p className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          Database connection failed. Check that your database is running and that{" "}
+          <code>DATABASE_URL</code> is correct. ({dbError})
+        </p>
+      ) : (
+        <UserIssuesChart data={chartData} />
+      )}
     </main>
   );
 }

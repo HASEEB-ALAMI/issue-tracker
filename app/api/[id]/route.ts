@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/client";
 import z from "zod";
+import { auth } from "@/auth";
 
 const createIssueSchema = z.object({
   title: z.string().max(20),
@@ -11,6 +12,11 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { id } = await params;
 
@@ -44,6 +50,11 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { id } = await params;
 
@@ -74,6 +85,11 @@ export async function DELETE(
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = createIssueSchema.safeParse(body);
   const { id } = await params;

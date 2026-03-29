@@ -7,20 +7,33 @@ type Props = {
   id: number;
   title: string;
   status: string;
+  userEmail?: string | null;
 };
 
-export default function IssueRow({ id, title, status }: Props) {
+export default function IssueRow({ id, title, status, userEmail }: Props) {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/issues/${id}`); // or whatever route you want
+    router.push(`/issue/${id}`);
   };
 
   return (
-    <Table.Row onClick={handleClick} style={{ cursor: "pointer" }}>
+    <Table.Row
+      onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
+      tabIndex={0}
+      role="link"
+      className="cursor-pointer hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-slate-400"
+    >
       <Table.RowHeaderCell>{id}</Table.RowHeaderCell>
       <Table.Cell>{title}</Table.Cell>
       <Table.Cell>{status}</Table.Cell>
+      <Table.Cell>{userEmail ?? "—"}</Table.Cell>
     </Table.Row>
   );
 }

@@ -1,31 +1,9 @@
-"use client";
+import { auth } from "@/auth";
+import NavBarClient from "./navBarClient";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+export default async function NavBar() {
+  const session = await auth();
+  const userEmail = session?.user?.email ?? null;
 
-const NavBar = () => {
-  const currentPath = usePathname();
-  return (
-    <div className='flex space-x-3 p-4'>
-      <Link href={"/"} prefetch={false}>
-        LOGO
-      </Link>
-      <Link
-        href={"/"}
-        prefetch={false}
-        className={`${currentPath === "/" ? "text-white" : "text-gray-500"} `}
-      >
-        Home
-      </Link>
-      <Link
-        href={"/newIssue"}
-        prefetch={false}
-        className={`${currentPath === "/newIssue" ? "text-white" : "text-gray-500"} `}
-      >
-        Issue
-      </Link>
-    </div>
-  )
+  return <NavBarClient userEmail={userEmail} />;
 }
-
-export default NavBar

@@ -6,11 +6,17 @@ import {
   Box,
   Separator,
 } from "@radix-ui/themes";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import type { Metadata } from "next";
 
-import prisma from "@/app/client";
 import IssueActions from "./IssueActions";
+import { auth } from "@/auth";
+import { getIssueById } from "@/app/lib/issueData";
+
+export const metadata: Metadata = {
+  title: "Issue",
+};
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,6 +26,9 @@ export default async function IssueDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await auth();
+  if (!session) redirect("/login");
+
   const { id: idParam } = await params;
   const id = Number(idParam);
   if (!Number.isInteger(id)) notFound();
@@ -28,9 +37,7 @@ export default async function IssueDetailPage({
     await new Promise((resolve) => setTimeout(resolve, 400));
   }
 
-  const issue = await prisma.issue.findUnique({
-    where: { id },
-  });
+  const issue = await getIssueById(id);
 
   if (!issue) notFound();
   
@@ -116,5 +123,3 @@ export default async function IssueDetailPage({
     </Flex>
   );
 }
-
-
