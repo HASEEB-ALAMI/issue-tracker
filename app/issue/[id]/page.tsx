@@ -118,6 +118,7 @@ export default async function IssueDetailPage({
           id={issue.id}
           initialTitle={issue.title}
           initialDescription={issue.description}
+          initialStatus={issue.status}
         />
       </Card>
     </Flex>

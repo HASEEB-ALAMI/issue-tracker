@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertDialog, Box, Button, Flex, Text, TextField } from "@radix-ui/themes";
+import { AlertDialog, Box, Button, Flex, Select, Text, TextField } from "@radix-ui/themes";
 import MDEditor from "@uiw/react-md-editor";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -9,12 +9,14 @@ type Props = {
   id: number;
   initialTitle: string;
   initialDescription: string;
+  initialStatus: "OPEN" | "IN_PROGRESS" | "CLOSED";
 };
 
 export default function IssueActions({
   id,
   initialTitle,
   initialDescription,
+  initialStatus,
 }: Props) {
   const router = useRouter();
 
@@ -23,16 +25,19 @@ export default function IssueActions({
   const [description, setDescription] = useState<string | undefined>(
     initialDescription,
   );
+  const [status, setStatus] = useState<Props["initialStatus"]>(initialStatus);
   const [error, setError] = useState<string | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   useEffect(() => {
     if (isEditing) return;
     setTitle(initialTitle);
     setDescription(initialDescription);
-  }, [initialTitle, initialDescription, isEditing]);
+    setStatus(initialStatus);
+  }, [initialTitle, initialDescription, initialStatus, isEditing]);
 
   const canSubmit = useMemo(() => {
     const trimmedTitle = title.trim();
@@ -50,6 +55,7 @@ export default function IssueActions({
         body: JSON.stringify({
           title,
           description,
+          status,
         }),
       });
 
@@ -69,6 +75,37 @@ export default function IssueActions({
       setError(e instanceof Error ? e.message : "Failed to update issue");
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function onStatusChange(nextStatus: Props["initialStatus"]) {
+    setError(null);
+    setStatus(nextStatus);
+    setIsUpdatingStatus(true);
+    try {
+      const response = await fetch(`/api/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        const message =
+          payload?.error ??
+          payload?.message ??
+          `Failed to update status (${response.status})`;
+        setError(message);
+        setStatus(initialStatus);
+        return;
+      }
+
+      router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to update status");
+      setStatus(initialStatus);
+    } finally {
+      setIsUpdatingStatus(false);
     }
   }
 
@@ -105,6 +142,27 @@ export default function IssueActions({
         </Box>
       ) : null}
 
+      {!isEditing ? (
+        <Box className="mb-4">
+          <Text className="text-xs sm:text-sm text-gray-500 mb-1">Status</Text>
+          <div className="mt-1 pl-1">
+            <Select.Root
+              size="3"
+              value={status}
+              onValueChange={(value) => onStatusChange(value as Props["initialStatus"])}
+              disabled={isUpdatingStatus || isDeleting}
+            >
+              <Select.Trigger className="w-full" variant="soft" radius="large" />
+              <Select.Content variant="solid">
+                <Select.Item value="OPEN">Open</Select.Item>
+                <Select.Item value="IN_PROGRESS">In progress</Select.Item>
+                <Select.Item value="CLOSED">Closed</Select.Item>
+              </Select.Content>
+            </Select.Root>
+          </div>
+        </Box>
+      ) : null}
+
       {isEditing ? (
         <Flex direction="column" className="gap-4">
           <Box>
@@ -114,6 +172,25 @@ export default function IssueActions({
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter title..."
             />
+          </Box>
+
+          <Box>
+            <Text className="text-xs sm:text-sm text-gray-500 mb-1">Status</Text>
+            <div className="mt-1 pl-1">
+              <Select.Root
+                size="3"
+                value={status}
+                onValueChange={(value) => setStatus(value as Props["initialStatus"])}
+                disabled={isSaving}
+              >
+                <Select.Trigger className="w-full" variant="soft" radius="large" />
+                <Select.Content variant="solid">
+                  <Select.Item value="OPEN">Open</Select.Item>
+                  <Select.Item value="IN_PROGRESS">In progress</Select.Item>
+                  <Select.Item value="CLOSED">Closed</Select.Item>
+                </Select.Content>
+              </Select.Root>
+            </div>
           </Box>
 
           <Box>
@@ -141,6 +218,7 @@ export default function IssueActions({
               onClick={() => {
                 setTitle(initialTitle);
                 setDescription(initialDescription);
+                setStatus(initialStatus);
                 setError(null);
                 setIsEditing(false);
               }}

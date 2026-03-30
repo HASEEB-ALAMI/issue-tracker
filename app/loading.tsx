@@ -1,38 +1,33 @@
-import { Table } from "@radix-ui/themes";
-
-function SkeletonCell() {
-  return <div className="h-4 w-full rounded bg-slate-700/60" />;
-}
+import { Skeleton } from "@radix-ui/themes";
 
 export default function Loading() {
-  const rows = [1, 2, 3, 4, 5];
-  return (
-    <main className="p-6 animate-pulse">
-      <Table.Root variant="ghost">
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeaderCell>ID</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Title</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Status</Table.ColumnHeaderCell>
-          </Table.Row>
-        </Table.Header>
+  const rows = Array.from({ length: 6 });
 
-        <Table.Body>
-          {rows.map((key) => (
-            <Table.Row key={key}>
-              <Table.RowHeaderCell>
-                <SkeletonCell />
-              </Table.RowHeaderCell>
-              <Table.Cell>
-                <SkeletonCell />
-              </Table.Cell>
-              <Table.Cell>
-                <SkeletonCell />
-              </Table.Cell>
-            </Table.Row>
+  return (
+    <main className="p-6">
+      <div className="mb-6 rounded border border-slate-800 bg-slate-950 p-4 text-slate-100">
+        <Skeleton height="16px" width="320px" />
+      </div>
+
+      <section className="rounded border border-slate-800 bg-slate-950 p-4 text-slate-100">
+        <Skeleton height="14px" width="140px" />
+
+        <div className="mt-4 h-[320px] w-full">
+          <Skeleton height="320px" />
+        </div>
+
+        <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {rows.map((_, idx) => (
+            <div
+              key={idx}
+              className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900/30 px-3 py-2"
+            >
+              <Skeleton height="14px" width="70%" />
+              <Skeleton height="14px" width="18%" />
+            </div>
           ))}
-        </Table.Body>
-      </Table.Root>
+        </div>
+      </section>
     </main>
   );
 }

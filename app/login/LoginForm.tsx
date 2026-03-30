@@ -33,7 +33,8 @@ export default function LoginForm() {
     });
 
     if (res?.ok) {
-      router.push("/");
+      router.replace("/");
+      router.refresh();
     } else {
       alert("Invalid email or password");
     }
@@ -116,4 +117,3 @@ export default function LoginForm() {
     </Flex>
   );
 }
-

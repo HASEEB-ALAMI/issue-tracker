@@ -57,8 +57,10 @@ cp .env.example .env
 3) Fill in `.env`:
 
 - `DATABASE_URL` – your MySQL/MariaDB connection string
+- `SHADOW_DATABASE_URL` – optional; required for `npx prisma migrate dev` (use a separate disposable DB)
 - `AUTH_SECRET` – secret for NextAuth
 - `NEXTAUTH_URL` – app URL (dev: `http://localhost:3000`, prod: your deployed URL)
+- `PRISMA_USER_HOME` – optional; keeps Prisma caches inside the repo (useful on some deploy targets)
 
 ## Database (Prisma)
 

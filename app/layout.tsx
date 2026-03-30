@@ -4,6 +4,9 @@ import type { Metadata } from "next";
 import NavBar from "./navBar";
 import { Theme } from "@radix-ui/themes";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: {
     default: "Issue Tracker",

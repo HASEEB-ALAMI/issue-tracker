@@ -25,8 +25,8 @@ export default function UserIssuesChart({ data }: { data: ChartPoint[] }) {
     <section className="rounded border border-slate-800 bg-slate-950 p-4 text-slate-100">
       <h2 className="text-sm font-semibold text-slate-200">Issues by user</h2>
 
-      <div className="mt-4 h-[320px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="mt-4 h-[320px] w-full min-w-0">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={320}>
           <BarChart data={data} margin={{ top: 10, right: 16, left: 0, bottom: 50 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.25)" />
             <XAxis
@@ -72,4 +72,3 @@ export default function UserIssuesChart({ data }: { data: ChartPoint[] }) {
     </section>
   );
 }
-

@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.5.0",
-    "@prisma/client": "7.5.0",
+    "@prisma/client": "^7.5.0",
     "@radix-ui/themes": "^3.3.0",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "25.5.0",
@@ -36,6 +37,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "prisma": "7.5.0"
+    "prisma": "^7.5.0"
   }
 }

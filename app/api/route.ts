@@ -11,6 +11,7 @@ const createIssueSchema = z.object({
   title: z.string().max(20),
   description: z.string().min(10),
   userId: z.coerce.number().int().positive().optional(),
+  status: z.enum(["OPEN", "IN_PROGRESS", "CLOSED"]).optional(),
 });
 
 export async function POST(request: Request) {
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
       data: {
         title: parsed.data.title,
         description: parsed.data.description,
+        ...(parsed.data.status ? { status: parsed.data.status } : {}),
         ...(parsed.data.userId ? { userId: parsed.data.userId } : {}),
       },
     });
