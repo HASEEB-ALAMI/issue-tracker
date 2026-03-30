@@ -2,7 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 import prisma from "@/app/client";
-import type { Status } from "@/app/generated/prisma";
+import { Status } from "@prisma/client";
 
 export type IssueListItem = {
   id: number;
@@ -59,4 +59,3 @@ export const getIssuesByUserEmailChart = cache(async (): Promise<IssuesByUserPoi
     })
     .sort((a, b) => b.issues - a.issues || a.email.localeCompare(b.email));
 });
-

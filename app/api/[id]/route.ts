@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/app/client";
 import z from "zod";
 import { auth } from "@/auth";
-import type { Prisma } from "@/generated/prisma";
+import type { Prisma } from "@prisma/client";
 
 const updateIssueSchema = z
   .object({
