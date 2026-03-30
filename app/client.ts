@@ -9,11 +9,21 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function mariaDbUrlFromEnv() {
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl = process.env.DATABASE_URL?.trim();
   if (!databaseUrl) throw new Error("DATABASE_URL is not set");
 
-  const url = new URL(databaseUrl);
-  url.protocol = "mariadb:";
+  const rewritten = databaseUrl.replace(/^mysql:\/\//, "mariadb://");
+  if (!rewritten.startsWith("mariadb://")) {
+    throw new Error("DATABASE_URL must start with mysql:// or mariadb://");
+  }
+
+  let url: URL;
+  try {
+    url = new URL(rewritten);
+  } catch {
+    // Fall back to raw string if URL parsing fails (e.g., unusual characters in password).
+    return rewritten;
+  }
 
   const isLocalHost = url.hostname === "localhost" || url.hostname === "127.0.0.1";
   const socketPathFromUrl = url.searchParams.get("socketPath");
