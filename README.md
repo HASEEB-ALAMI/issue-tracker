@@ -5,6 +5,11 @@ A small issue-tracking app built with Next.js App Router, Prisma (MariaDB/MySQL)
 ## Screenshots
 Screenshots (stored in `public/`):
 
+for live checking: https://issue-tracker-o9n1.vercel.app/
+
+user: user4@test.com
+pass: 123456
+
 ![Screenshot 1](public/Screenshot%20From%202026-03-30%2000-04-37.png)
 ![Screenshot 2](public/Screenshot%20From%202026-03-30%2000-04-53.png)
 
